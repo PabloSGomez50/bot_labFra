@@ -11,10 +11,10 @@ Mira **Deployment** para conocer como desplegar el proyecto.
 
 ### Pre-requisitos 📋
 
-_Se debe contr con python instalado y con una token de discord_
+_Se debe contar con python instalado y con una token de discord_
 
 ```
-\#.env
+/.env
 DISCORD_TOKEN = #token
 ```
 
@@ -41,7 +41,7 @@ _No especificadas_
 
 ## Construido con 🛠️
 
-_Este codigo se centra en la documentacion de la libreria`discord.py`_
+_Este codigo se centra en la documentacion de la libreria `discord.py`_
 
 * [Discord.py](https://discordpy.readthedocs.io/en/stable/)
 
