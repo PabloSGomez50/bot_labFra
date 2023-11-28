@@ -6,9 +6,6 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
-    env:
-      EMAIL_USER: ${{ env.EMAIL_USER }}
-      EMAIL_PASSWORD: ${{ env.EMAIL_PASSWORD }}
     steps:
     - name: Checkout
       uses: actions/checkout@v2
@@ -21,14 +18,9 @@ jobs:
     - name: Instalar dependencias
       run: |
         python -m pip install --upgrade pip
-
-    - name: Display Environment Variables
-      run: |
-        echo "My variable: $EMAIL_USER"
-        echo "Another variable: $EMAIL_PASSWORD"
         
     - name: Ejecutar script Python
       run: python enviar_email.py
       env:
-        EMAIL_USER: "gomezpablo9999@gmail.com"
+        EMAIL_USER: ${{ secrets.EMAIL_USER }}
         EMAIL_PASSWORD: ${{ secrets.EMAIL_PASSWORD }}
