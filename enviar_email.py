@@ -15,6 +15,7 @@ msg.set_content(cuerpo_del_mail)
 
 server = smtplib.SMTP('smtp.gmail.com', 587)
 server.starttls()
+print(mail, password)
 server.login(mail, password)
 
 # enviar
