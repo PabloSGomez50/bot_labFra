@@ -6,6 +6,9 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
+    env:
+      EMAIL_USER: ${{ secrets.EMAIL_USER }}
+      EMAIL_PASSWORD: ${{ secrets.EMAIL_PASSWORD }}
     steps:
     - name: Checkout
       uses: actions/checkout@v2
@@ -21,6 +24,8 @@ jobs:
 
     - name: Ejecutar script Python
       run: python enviar_email.py
-      env:
-        EMAIL_USER: ${{ secrets.EMAIL_USER }}
-        EMAIL_PASSWORD: ${{ secrets.EMAIL_PASSWORD }}
+
+    - name: Display Environment Variables
+      run: |
+        echo "My variable: $EMAIL_USER"
+        echo "Another variable: $EMAIL_PASSWORD"
