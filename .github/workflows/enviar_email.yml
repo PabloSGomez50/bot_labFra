@@ -20,7 +20,7 @@ jobs:
         python -m pip install --upgrade pip
 
     - name: Ejecutar script Python
-      run: python email.py
+      run: python enviar_email.py
       env:
         EMAIL_USER: ${{ secrets.EMAIL_USER }}
         EMAIL_PASSWORD: ${{ secrets.EMAIL_PASSWORD }}
