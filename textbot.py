@@ -55,7 +55,7 @@ class LabBot(discord.Client):
     async def on_message(self, message):
         # Checkeo de canal
         if message.channel.id != self.bot_channel.id:
-            return 
+            return
 
         if message.author.name == 'pabl1':
             log.info(f'content: {message.content}')
@@ -63,6 +63,16 @@ class LabBot(discord.Client):
 
         if message.author == self.user:
             return
+
+        if hilo := re.findall(r'\$msg hilo ([\w-]+)', message.content):
+            log.info(f'Ingreso a buscar hilo con {hilo}')
+            channel = [c for c in self.all_channels if c.name == message.channel.name][0]
+            log.info(f'Canal: {channel}')
+            if len(thread := [th for th in channel.threads if th.name == hilo[0]]) > 0:
+                await thread[0].send('Puedo acceder al hilo')
+            else:
+                await channel.send('No tengo acceso al hilo')
+            log.info('Respondio')
 
         if message.content.startswith('$hello'):
             await message.channel.send('Hello!')

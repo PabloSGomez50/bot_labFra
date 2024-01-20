@@ -10,7 +10,7 @@ import youtube_dl
 from discord.ext import commands
 
 # Suppress noise about console usage from errors
-youtube_dl.utils.bug_reports_message = lambda: ''
+# youtube_dl.utils.bug_reports_message = lambda: ''
 
 DISCORD_TOKEN = os.getenv('DISCORD_TOKEN')
 
