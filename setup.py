@@ -1,10 +1,10 @@
 import setuptools
 
-with open("readme.md", "r", encoding="utf-8") as fh:
-    long_description = fh.read()
+with open("readme.md", "r", encoding="utf-8") as fp:
+    long_description = fp.read()
 
-with open('requirements.txt', encoding="utf-8") as f:
-    requirements = f.read().splitlines()
+with open('requirements.txt') as fp:
+    requirements = fp.read().splitlines()
 
 setuptools.setup(
     name='labfra_bot',
