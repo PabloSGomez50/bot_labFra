@@ -3,8 +3,8 @@ import setuptools
 with open("readme.md", "r", encoding="utf-8") as fp:
     long_description = fp.read()
 
-with open('requirements.txt') as fp:
-    requirements = fp.read().splitlines()
+# with open('requirements.txt') as fp:
+#     requirements = fp.read().splitlines()
 
 setuptools.setup(
     name='labfra_bot',
@@ -20,6 +20,6 @@ setuptools.setup(
     },
     license='MIT',
     packages=['labfra_bot'],
-    install_requires=requirements,
-    # install_requires=['requests'],
+    # install_requires=requirements,
+    install_requires=['requests', 'python-dotenv', 'discord.py[voice]'],
 )
