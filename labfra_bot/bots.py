@@ -107,17 +107,21 @@ class Bot(discord.Client):
         # with youtube_dl.YoutubeDL(ydl_opts) as ydl:
         #     info = ydl.extract_info(url, download=False)
         #     url2 = info['formats'][0]['url']
-        audio_path = os.path.join("audio", url)
+        audio_path = os.path.join(os.path.dirname(__file__), "audio", url)
+        log.info(f'Utilizando path {audio_path}')
         if os.path.exists(audio_path):
             try:
                 audio_source = discord.FFmpegPCMAudio(audio_path)
                 self.voice_channel.play(audio_source)
+                log.info("Se ejecuto el audio")
             except Exception as e:
                 msg = 'audio not found: ' + str(e)
                 log.error(msg)
                 await message.channel.send(msg)
                 return
-        return
+        else:
+            log.warning(f'No existe el archivo {audio_path}')
+
     # @commands.command()
     async def leave(self, msg):
         if self.voice_channel:
@@ -133,6 +137,7 @@ class LabBot(Bot):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.voice_channel = None
+        self.prefix = kwargs.get('prefix')
 
     async def on_ready(self):
         self.server_guild = self.get_guild(SERVER_ID)
@@ -146,14 +151,14 @@ class LabBot(Bot):
         if message.channel.id != self.bot_channel.id:
             return
         
-        if message.content.startswith(f'{PREFIX_BOT}connect'):
+        if message.content.startswith(f'{self.prefix}connect'):
             await self.connect_to_channel(message)
             return
         
-        if message.content.startswith(f'{PREFIX_BOT}play'):
+        if message.content.startswith(f'{self.prefix}play'):
             await self.play(message)
             return
-        if message.content.startswith(f'{PREFIX_BOT}disconnect'):
+        if message.content.startswith(f'{self.prefix}disconnect'):
             await self.leave(message)
             return
 
@@ -236,6 +241,6 @@ async def start_bot():
 
 if __name__ == '__main__':
     # loop = asyncio.get_event_loop()
-    client = LabBot(intents=intents, command_prefix=PREFIX_BOT)
+    client = LabBot(intents=intents, prefix=PREFIX_BOT)
     client.run(DISCORD_TOKEN)
     # loop.run_until_complete(client.start(DISCORD_TOKEN))
