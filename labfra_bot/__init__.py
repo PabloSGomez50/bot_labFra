@@ -1,1 +1,1 @@
-from .textbot import LabBot
+from .bots import LabBot

@@ -21,5 +21,5 @@ setuptools.setup(
     license='MIT',
     packages=['labfra_bot'],
     # install_requires=requirements,
-    install_requires=['requests', 'python-dotenv', 'discord.py[voice]'],
+    install_requires=['requests', 'python-dotenv', 'discord.py[voice]', 'youtube_dl'],
 )

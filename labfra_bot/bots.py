@@ -1,19 +1,24 @@
-import discord
 import re
 import os
 import asyncio
 import logging
+import discord
 from discord.utils import get
-# import tracemalloc
+from discord.ext import commands
+import youtube_dl
+
 from dotenv import load_dotenv
-# tracemalloc.start(10)
 load_dotenv()
-logging.basicConfig(format='%(levelname)s:%(message)s', level=logging.DEBUG)
+
+logging.basicConfig(
+    format='[%(asctime)s] %(levelname)s - %(message)s',
+    level=logging.DEBUG,
+    encoding='utf-8'
+)
 log = logging.getLogger('uvicorn')
-# log = 
-# log.setLevel(logging.INFO)
 
 DISCORD_TOKEN = os.getenv('DISCORD_TOKEN')
+PREFIX_BOT = os.getenv('PREFIX_BOT')
 SERVER_ID = int(os.getenv('SERVER_ID', 0))
 BOT_CHANNEL_ID = int(os.getenv('BOT_CHANNEL_ID', 0))
 ONLY_BOT_CHANNEL = bool(os.getenv('ONLY_BOT_CHANNEL', 0))
@@ -22,7 +27,13 @@ intents = discord.Intents.default()
 intents.members = True
 intents.message_content = True
 
-class LabBot(discord.Client):
+class Bot(discord.Client):
+# class Bot(commands.Bot):
+    """
+    Contenido de funciones que utiliza la clase LabBot
+    """
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
 
     async def set_role(self, member, role_name):
         if role_name == 'none':
@@ -45,16 +56,96 @@ class LabBot(discord.Client):
         except IndexError:
             log.info(f'Miembro "{name}" not found')
             return None
+        
+    
+    # @commands.command()
+    async def connect_to_channel(self, message):
+        if message.author.voice is None:
+            msg = f'User {message.author.name} not in voice channel'
+            log.error(msg)
+            await message.channel.send(msg)
+            return
+        try:
+            channel = message.author.voice.channel
+            self.voice_channel = await channel.connect()
+        except Exception as e:
+            self.voice_channel = None
+            msg = f"Cant connect to {channel}: {e}"
+            log.error(msg)
+            await message.channel.send(msg)
+            return
+
+
+    async def play(self, message):
+        try:
+            url = message.content.split(' ')[1]
+            log.info(f'Informacion de url: {url}')
+            return
+        except IndexError:
+            await message.channel.send('No se puede obtener la url del mensaje')
+            return 
+        if self.voice_channel is None:
+            try:
+                channel = message.author.voice.channel
+                self.voice_channel = await channel.connect()
+            except Exception as e:
+                self.voice_channel = None
+                msg = f"Cant connect to {channel}: {e}"
+                log.error(msg)
+                await message.channel.send(msg)
+                return
+        
+        ydl_opts = {
+            'format': 'bestaudio/best',
+            'postprocessors': [{
+                'key': 'FFmpegExtractAudio',
+                'preferredcodec': 'mp3',
+                'preferredquality': '192',
+            }],
+        }
+
+        with youtube_dl.YoutubeDL(ydl_opts) as ydl:
+            info = ydl.extract_info(url, download=False)
+            url2 = info['formats'][0]['url']
+            self.voice_channel.play(discord.FFmpegPCMAudio(url2))
+
+    # @commands.command()
+    async def leave(self, msg):
+        if self.voice_channel:
+            await self.voice_channel.disconnect()
+            self.voice_channel = None
+        else:
+            await msg.channel.send("Bot is not connected to a voice channel.")
+
+class LabBot(Bot):
+    """
+    Eventos del bot de discord
+    """
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.voice_channel = None
 
     async def on_ready(self):
         self.server_guild = self.get_guild(SERVER_ID)
         self.all_channels = self.server_guild.channels
         self.bot_channel = [c for c in self.all_channels if c.id == BOT_CHANNEL_ID][0]
+        # self.voice_channel = None
         log.info(f'We have logged in as {self.user}')
 
     async def on_message(self, message):
         # Checkeo de canal
         if message.channel.id != self.bot_channel.id:
+            return
+        
+        if message.content.startswith(f'{PREFIX_BOT}connect'):
+            await self.connect_to_channel(message)
+            return
+        
+        if message.content.startswith(f'{PREFIX_BOT}play'):
+            await self.play(message)
+            return
+        if message.content.startswith(f'{PREFIX_BOT}disconnect'):
+            await self.leave(message)
             return
 
         if message.author.name == 'pabl1':
@@ -130,12 +221,12 @@ class LabBot(discord.Client):
             await message.channel.send('Bueeeenas, estas hablando con Pablooo.')
 
 
-
-
 async def start_bot():
     await asyncio.create_task(client.run(DISCORD_TOKEN))
 # client.run(DISCORD_TOKEN)
 
 if __name__ == '__main__':
-    client = LabBot(intents=intents)
+    # loop = asyncio.get_event_loop()
+    client = LabBot(intents=intents, command_prefix=PREFIX_BOT)
     client.run(DISCORD_TOKEN)
+    # loop.run_until_complete(client.start(DISCORD_TOKEN))
