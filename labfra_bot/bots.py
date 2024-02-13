@@ -80,7 +80,7 @@ class Bot(discord.Client):
         try:
             url = message.content.split(' ')[1]
             log.info(f'Informacion de url: {url}')
-            return
+            # return
         except IndexError:
             await message.channel.send('No se puede obtener la url del mensaje')
             return 
@@ -104,11 +104,20 @@ class Bot(discord.Client):
             }],
         }
 
-        with youtube_dl.YoutubeDL(ydl_opts) as ydl:
-            info = ydl.extract_info(url, download=False)
-            url2 = info['formats'][0]['url']
-            self.voice_channel.play(discord.FFmpegPCMAudio(url2))
-
+        # with youtube_dl.YoutubeDL(ydl_opts) as ydl:
+        #     info = ydl.extract_info(url, download=False)
+        #     url2 = info['formats'][0]['url']
+        audio_path = os.path.join("audio", url)
+        if os.path.exists(audio_path):
+            try:
+                audio_source = discord.FFmpegPCMAudio(audio_path)
+                self.voice_channel.play(audio_source)
+            except Exception as e:
+                msg = 'audio not found: ' + str(e)
+                log.error(msg)
+                await message.channel.send(msg)
+                return
+        return
     # @commands.command()
     async def leave(self, msg):
         if self.voice_channel:
