@@ -8,11 +8,11 @@ from discord.ext import commands
 import youtube_dl
 
 from dotenv import load_dotenv
-load_dotenv()
+load_dotenv(override=True)
 
 logging.basicConfig(
     format='[%(asctime)s] %(levelname)s - %(message)s',
-    level=logging.DEBUG,
+    level=logging.INFO,
     encoding='utf-8'
 )
 log = logging.getLogger('uvicorn')
@@ -143,7 +143,6 @@ class LabBot(Bot):
         self.server_guild = self.get_guild(SERVER_ID)
         self.all_channels = self.server_guild.channels
         self.bot_channel = [c for c in self.all_channels if c.id == BOT_CHANNEL_ID][0]
-        # self.voice_channel = None
         log.info(f'We have logged in as {self.user}')
 
     async def on_message(self, message):
@@ -234,13 +233,6 @@ class LabBot(Bot):
         if re.match(r'.*pabli.*', message.content):
             await message.channel.send('Bueeeenas, estas hablando con Pablooo.')
 
-
-async def start_bot():
-    await asyncio.create_task(client.run(DISCORD_TOKEN))
-# client.run(DISCORD_TOKEN)
-
 if __name__ == '__main__':
-    # loop = asyncio.get_event_loop()
     client = LabBot(intents=intents, prefix=PREFIX_BOT)
     client.run(DISCORD_TOKEN)
-    # loop.run_until_complete(client.start(DISCORD_TOKEN))
