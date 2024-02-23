@@ -1,5 +1,6 @@
-import asyncio
+import json
 import youtube_dl
+import os
 
 ytdl_format_options = {
     'format': 'bestaudio/best',
@@ -19,14 +20,26 @@ ffmpeg_options = {
     'options': '-vn',
 }
 
-ytdl = youtube_dl.YoutubeDL(ytdl_format_options)
-
-
 def main():
-    url = input('Youtube url:')
-    data = ytdl.extract_info(url)
+    while (url := input('Youtube url: ')).lower() != 'exit':
+        try:
+            with youtube_dl.YoutubeDL(ytdl_format_options) as ytdl:
+                data = ytdl.extract_info(url, download=False)
 
-    print(data)
+            if 'title' in data:
+                print(f'Saving "{data["title"]}" content in json file')
+                file_path = f'youtube_info/{data["title"]}.json'
+                if not os.path.exists(file_path):
+                    print('Direccion actual:', os.getcwd())
+                    print(os.path.dirname(file_path))
+                    os.mkdir(os.path.dirname(file_path))
+
+                with open(file_path, 'w') as fp:
+                    json.dump(data, fp, indent=4)
+        except KeyError as e:
+            print('No se pudo obtener la key:', e)
+        except Exception as e:
+            print('Error no procesado:', e)
 
 if __name__ == '__main__':
     main()

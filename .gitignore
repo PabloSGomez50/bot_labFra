@@ -1,3 +1,4 @@
 .env
 /venv
 /labfra_bot/audio/
+/labfra_bot/youtube_info/
