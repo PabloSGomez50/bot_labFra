@@ -104,23 +104,25 @@ class Bot(discord.Client):
             }],
         }
 
-        # with youtube_dl.YoutubeDL(ydl_opts) as ydl:
-        #     info = ydl.extract_info(url, download=False)
-        #     url2 = info['formats'][0]['url']
-        audio_path = os.path.join(os.path.dirname(__file__), "audio", url)
-        log.info(f'Utilizando path {audio_path}')
-        if os.path.exists(audio_path):
-            try:
-                audio_source = discord.FFmpegPCMAudio(audio_path)
-                self.voice_channel.play(audio_source)
-                log.info("Se ejecuto el audio")
-            except Exception as e:
-                msg = 'audio not found: ' + str(e)
-                log.error(msg)
-                await message.channel.send(msg)
-                return
+        if 'youtube' in url:
+            with youtube_dl.YoutubeDL(ydl_opts) as ydl:
+                info = ydl.extract_info(url, download=False)
+                audio_path = info['formats'][0]['url']
         else:
-            log.warning(f'No existe el archivo {audio_path}')
+            audio_path = os.path.join(os.path.dirname(__file__), "audio", url)
+        log.info(f'Utilizando path {audio_path}')
+        # if os.path.exists(audio_path):
+        try:
+            audio_source = discord.FFmpegPCMAudio(audio_path)
+            self.voice_channel.play(audio_source)
+            log.info("Se ejecuto el audio")
+        except Exception as e:
+            msg = 'audio not found: ' + str(e)
+            log.error(msg)
+            await message.channel.send(msg)
+            return
+        # else:
+        #     log.warning(f'No existe el archivo {audio_path}')
 
     # @commands.command()
     async def leave(self, msg):
